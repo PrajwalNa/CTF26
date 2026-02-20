@@ -1,0 +1,16 @@
+The Lich’s Token
+[pwn]
+
+*Kings rot. Legacies do not.*
+
+Stormhaven has buried many names, but some names claw their way back.
+In a forgotten vault, an ancient relic still stirs beneath dust and rust, the old seals endure, the token of passage is not gifted to wandering hands.
+
+You are sent with little and promised even less.
+No records, no guiding whispers, no mercy.
+
+Follow the rite, break the chain, and claim what the dead still call their own.
+Some gates open to wit, some open to force.
+
+
+{unDEAD_THR0N3} & one after overflow exploit in the docker: {M0nARCH_0F_DEATH}

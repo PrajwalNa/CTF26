@@ -1,0 +1,38 @@
+Author Solution (do not ship)
+
+Challenge: Crown of Mirrors
+Real flag: {S7ARFALL_THR0N3}
+Fake decoy flag: BR0K3N_THR0N3
+
+1) Input format
+- Must be exactly: XXXX-XXXX-XXXX-XXXX-XXXX
+- Total 24 chars, hyphens at 4/9/14/19, uppercase A-Z only.
+
+2) Path routing
+- `preInitGate()` runs before `main` and sets taint bits from anti-debug checks.
+- `selectPath(taint)`:
+  - taint == 0 -> real path
+  - taint != 0 and even -> decoy no-flag path
+  - taint != 0 and odd -> decoy fake-flag path
+
+3) Real path reverse
+- `crownReal()` validates 5 group tags and computes `sigA`.
+- `mirrorReal()` enforces six constraints and computes `sigB`.
+- `realFinalGate()` checks:
+  ((sigA ^ rol32(sigB,7)) + 0x27D4EB2D) == 0x613283A6
+- Valid real input:
+  VEGA-RIGL-DENB-ALTR-SIRI
+
+4) Flag recovery
+- `decryptRealFlag()` uses XOR stream:
+  keyWord = "FALKEN" (cycle 6)
+  salt    = [0x0A, 0xDF, 0x01] (cycle 3)
+  k[i]    = keyWord[i % 6] ^ salt[i % 3]
+  plain[i]= enc[i] ^ k[i]
+- Decrypted result is `{S7ARFALL_THR0N3}`.
+
+5) Decoy fake path
+- Alternate path validates separate crown/mirror constants and decrypts fake payload.
+- Decoy accepted input:
+  NOVA-LYRA-ORIO-CYGN-ARCT
+- Output: BR0K3N_THR0N3
