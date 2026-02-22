@@ -1,0 +1,7 @@
+Cauldron of Balance
+[rev | beginner]
+
+The potion needs exactly six ingredients.
+Add any more or less and the brew becomes unstable.
+Add the wrong ingredients and it may explode.
+

@@ -1,0 +1,24 @@
+Author Solve - Finals at Stormhaven Academy
+
+Core mechanic:
+- Input is not compared directly.
+- Each input byte is mapped through a 1:1 substitution table:
+  out[i] = runeMap[input[i]]
+- The transformed bytes are compared against inscription[].
+
+How to solve:
+1. Recover runeMap[256] and inscription[] from the binary (or source).
+2. Invert runeMap:
+   inv[runeMap[x]] = x
+3. Decode inscription with inv to get the required plaintext phrase.
+4. Input that phrase to pass and print the flag.
+
+Recovered answer:
+moonsilver ink
+
+Recovered flag:
+ACAD3MY_RUNE_CERT1F1ED
+
+Notes:
+- runeToken[] only affects display formatting (how bytes are shown as rune glyphs).
+- The real check is runeMap[] + inscription[].

@@ -1,0 +1,33 @@
+Author Notes - Ashen Choir
+
+Real flag target:
+{S0NG_0F-7H3_SP1RIT5}
+
+Fake flag target:
+S1L3NT_F0R3ST
+
+Canonical real token:
+ASHN-CHOR-ECHO-NITE-WARD
+
+Known fake branch tokens:
+Fake A: WISP-CHOR-ECHO-NITE-VALE
+Fake B: DUSK-CHOR-ECHO-NITE-WAIL
+Fake C: MIST-CHOR-ECHO-NITE-GLEN
+
+High-level solve strategy:
+1. Parse and normalize input into 20 bytes.
+2. Recover dispatchVoices and confirm 24 voice functions.
+3. Rebuild voiceCore equations and state updates.
+4. Reconstruct:
+   - stateMachineGate (edge + class counts)
+   - constraintGate (core + late)
+   - signature gates (real and decoy)
+5. Extract split constants and recombine.
+6. Derive the real-valid token by scripting constraints.
+7. Use final state words to derive real decryption keystream and recover real flag.
+
+Why this resists fast solves:
+- 24 voice handlers with state-dependent ordering.
+- Split constants and opaque predicates in selector/constant load paths.
+- Three fake-success outcomes that look legitimate.
+- Real/fake payloads are encrypted and not visible as plaintext strings.

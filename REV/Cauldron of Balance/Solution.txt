@@ -1,0 +1,33 @@
+Author Solve - Cauldron of Balance
+
+Input rules:
+- Exactly 6 characters.
+- Allowed charset: a-z0-9.
+
+Ingredient variables:
+- ember = in[0]
+- frost = in[1]
+- bile  = in[2]
+- root  = in[3]
+- mist  = in[4]
+- ash   = in[5]
+
+Constraints in validateMixture():
+1) ember + frost == 150
+2) (bile ^ 0x33) == 95
+3) frost + root == 149
+4) bile - root == 11
+5) root - mist == -13
+6) (ember * 7 + mist) % 26 == 16
+7) (mist ^ ember) == 12
+8) (ash & 0xF) == 3
+9) bile + ash == 207
+10) (frost * 3 + ash) % 26 == 21
+
+Unique solution over [a-z0-9]:
+b4lanc
+
+Reward path:
+- On success, revealReward() XOR-decrypts `sealed[]` with UTF-8 key bytes for `VIPER`.
+- Decrypted flag:
+{P3RFEC7LY-BALANC3D}
