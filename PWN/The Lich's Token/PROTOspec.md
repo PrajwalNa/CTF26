@@ -71,7 +71,7 @@ Custom protocol for 'The Lich's Token' challenge.
     - PayloadHash: 32 bytes (Blake3 hash of the payload/MD5 for 'Arise')
 - Payload: Variable length based on PayloadLength field, content depends on ProtocolID and MessageType.
 - All multi-byte fields are in little-endian format.
-- String encoding: UTF-8 for all string fields (enables better CTF challenge complexity; ASCII is subset of UTF-8 for interoperability)
+- String encoding: UTF-8 for all string fields
 - The server will validate the magic bytes & version followed by the payload hash & the token (except for the 'Arise' handshake) before processing the message. If any validation fails, it will respond with 'IDK you' (0x52) and an appropriate error code.
 - Timeout of 10 seconds for every message by default, connection closed if client with `IDK you` response or if no message received within timeout period.
 
@@ -146,3 +146,4 @@ Custom protocol for 'The Lich's Token' challenge.
 | 0x0007 | Config Key Not Found             | 0x52 (IDK you)                                                 |
 | 0x0008 | Data Chunk Hash Mismatch         | 0x23 (DataAck with error)                                      |
 | 0x0009 | Transfer Denied                  | 0x21 (ClearToSend deny)                                        |
+
