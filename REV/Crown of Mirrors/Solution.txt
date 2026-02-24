@@ -23,9 +23,9 @@ Fake decoy flag: BR0K3N_THR0N3
 - Valid real input:
   VEGA-RIGL-DENB-ALTR-SIRI
 
-4) Flag recovery
+4) Or just go for Flag recovery directly
 - `decryptRealFlag()` uses XOR stream:
-  keyWord = "FALKEN" (cycle 6)
+  keyWord = "FALKEN" (cycle 6) -- ASCII string can follow trail with XREFs
   salt    = [0x0A, 0xDF, 0x01] (cycle 3)
   k[i]    = keyWord[i % 6] ^ salt[i % 3]
   plain[i]= enc[i] ^ k[i]
@@ -36,3 +36,4 @@ Fake decoy flag: BR0K3N_THR0N3
 - Decoy accepted input:
   NOVA-LYRA-ORIO-CYGN-ARCT
 - Output: BR0K3N_THR0N3
+
