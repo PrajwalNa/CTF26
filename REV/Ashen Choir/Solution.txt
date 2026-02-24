@@ -25,9 +25,3 @@ High-level solve strategy:
 5. Extract split constants and recombine.
 6. Derive the real-valid token by scripting constraints.
 7. Use final state words to derive real decryption keystream and recover real flag.
-
-Why this resists fast solves:
-- 24 voice handlers with state-dependent ordering.
-- Split constants and opaque predicates in selector/constant load paths.
-- Three fake-success outcomes that look legitimate.
-- Real/fake payloads are encrypted and not visible as plaintext strings.
