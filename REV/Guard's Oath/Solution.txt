@@ -2,10 +2,6 @@
 2. Find the validation function that:
    - transforms 9 input bytes in a loop
    - compares the result to a constant 9-byte table.
-3. Recreate that transform in a script and invert it per byte:
-   - inverse rotate right
-   - subtract index-based value
-   - xor index-based mask.
-4. Recovered oath: `B0N3_WARD`
-5. Run the binary and input `B0N3_WARD` to print the flag.
+3. Check the program flow, see it doesn't print flag, look near the exit call for main function.
+4. There would be a dead code function which decodes the flag and prints it, it has the key and all, manually decode the flag.
 FLAG: {_0ATH_BR3KER_}
