@@ -13,15 +13,15 @@
     MOV  RA, 1
     SYSCALL RA, RC      ; print 42
 
-    MOV  RA, 40
-    ADDI RA, 2          ; RA = 42
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 42
+    MOV  RB, 40
+    ADDI RB, 2          ; RB = 42
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print 42
 
-    MOV  RA, 50
-    SUBI RA, 8          ; RA = 42
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 42
+    MOV  RB, 50
+    SUBI RB, 8          ; RB = 42
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print 42
 
     MOV  RA, 6
     MOV  RB, 7
@@ -66,15 +66,15 @@
     MOV  RA, 1
     SYSCALL RA, RC      ; print 15
 
+    MOV  RB, 1
+    SHL  RB, 4          ; RB = 16
     MOV  RA, 1
-    SHL  RA, 4          ; RA = 16
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 16
+    SYSCALL RA, RB      ; print 16
 
-    MOV  RA, 64
-    SHR  RA, 3          ; RA = 8
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 8
+    MOV  RB, 64
+    SHR  RB, 3          ; RB = 8
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print 8
 
 ; === Print separator ===
     MOV  RA, 2
@@ -83,30 +83,30 @@
     SYSCALL RA, RB, RC
 
 ; === Misc ops ===
-    MOV  RA, 999
-    MZERO RA            ; RA = 0
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 0
+    MOV  RB, 999
+    MZERO RB            ; RB = 0
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print 0
 
-    MOV  RA, 41
-    INC  RA             ; RA = 42
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 42
+    MOV  RB, 41
+    INC  RB             ; RB = 42
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print 42
 
-    MOV  RA, 43
-    DEC  RA             ; RA = 42
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 42
+    MOV  RB, 43
+    DEC  RB             ; RB = 42
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print 42
 
-    MOV  RA, 42
-    NOT  RA             ; RA = -42 (negation)
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print -42
+    MOV  RB, 42
+    NOT  RB             ; RB = ~42 = -43 (bitwise NOT)
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print -43
 
-    MOV  RA, 0
-    NEG  RA             ; RA = ~0 = -1
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print -1
+    MOV RB, 42
+    NEG RB             ; RB = -42 (two's complement)
+    MOV RA, 1
+    SYSCALL RA, RB      ; print -42
 
 ; === Print separator ===
     MOV  RA, 2
@@ -115,13 +115,13 @@
     SYSCALL RA, RB, RC
 
 ; === Jumps & loop ===
-    MZERO RA            ; RA = 0 (counter)
+    MZERO RC            ; RC = 0 (counter)
     MOV  RB, 5          ; limit
 loop:
-    MOV  RC, 1          ; PRINT_INT
-    SYSCALL RC, RA      ; print counter
-    INC  RA
-    JLT  RA, RB, loop   ; loop while RA < 5
+    MOV  RA, 1          ; PRINT_INT
+    SYSCALL RA, RC      ; print counter
+    INC  RC
+    JLT  RC, RB, loop   ; loop while RC < 5
 
 ; === Print separator ===
     MOV  RA, 2
@@ -130,20 +130,20 @@ loop:
     SYSCALL RA, RB, RC
 
 ; === Memory ===
-    MOV  RA, 42
+    MOV  RC, 42
     MOV  RB, 0x300
-    STORE RB, RA        ; MEM[0x300] = 42
-    MZERO RA
-    LOAD RA, RB         ; RA = MEM[0x300] = 42
-    MOV  RC, 1
-    SYSCALL RC, RA      ; print 42
+    STORE RB, RC        ; MEM[0x300] = 42
+    MZERO RC
+    LOAD RC, RB         ; RC = MEM[0x300] = 42
+    MOV  RA, 1
+    SYSCALL RA, RC      ; print 42
 
-    MOV  RA, 99
-    STOREI RA, 0x400    ; MEM[0x400] = 99
-    MZERO RA
-    LOADI RA, 0x400     ; RA = 99
-    MOV  RB, 1
-    SYSCALL RB, RA      ; print 99
+    MOV  RB, 99
+    STOREI RB, 0x400    ; MEM[0x400] = 99
+    MZERO RB
+    LOADI RB, 0x400     ; RB = 99
+    MOV  RA, 1
+    SYSCALL RA, RB      ; print 99
 
 ; === Print separator ===
     MOV  RA, 2
@@ -158,9 +158,9 @@ loop:
     SYSCALL RA, RB      ; print 42
 
 ; === PRINT_HEX ===
-    MOV  RA, 255
-    MOV  RB, 7          ; PRINT_HEX
-    SYSCALL RB, RA      ; print 0xFF
+    MOV  RB, 255
+    MOV  RA, 7          ; PRINT_HEX
+    SYSCALL RA, RB      ; print 0xFF
 
 ; === Done ===
     MOV  RA, 2

@@ -181,25 +181,22 @@ class RuneVM:
         imm = instr & 0xFFFFFF
         return op, rsv, r0, r1, r2, rsv2, imm
 
-    def handleSyscall(self) -> int:
-        # Handle syscall, rB/rC are register indices from Reg2/Reg3 fields
+    def handleSyscall(self, rB: int, rC: int) -> int:
+        # Handle syscall; rB/rC are decoded Reg2/Reg3 fields from instruction
         match self.regs[self.RA]:  # rA is syscall number
             case 0:  # EXIT
-                if self.regs[self.RB] < 0:
-                    self.outStream.write("Program exited with error code {}\n".format(self.regs[self.RB]))
+                if self.regs[rB] < 0:
+                    self.outStream.write("Program exited with error code {}\n".format(self.regs[rB]))
                     self.outStream.flush()
-                sys.exit(self.regs[self.RB])
+                sys.exit(self.regs[rB])
             case 1:  # PRINT_INT
-                self.chkReg(self.RB)
-                out = str(self.regs[self.RB])
+                out = str(self.regs[rB])
                 self.outStream.write(out)
                 self.outStream.flush()
                 return len(out)
             case 2:  # PRINT_STR
-                self.chkReg(self.RB)
-                self.chkReg(self.RC)
-                addr = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
-                sLen = self.regs[self.RC]
+                addr = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
+                sLen = self.regs[rC]
                 if sLen == 0:
                     char, i = [], 0
                     while True:
@@ -221,10 +218,8 @@ class RuneVM:
                 except ValueError:
                     return 0
             case 4:  # READ_STR
-                self.chkReg(self.RB)
-                self.chkReg(self.RC)
-                addr = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
-                maxLen = self.regs[self.RC]
+                addr = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
+                maxLen = self.regs[rC]
                 line = self.inStream.readline()
                 if line.endswith("\n"):
                     line = line[:-1]
@@ -233,16 +228,13 @@ class RuneVM:
                     self.mem[addr + i] = ord(line[i]) & 0xFF
                 return nWrit
             case 5:  # STRLEN
-                self.chkReg(self.RB)
-                addr, sLen = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF, 0
+                addr, sLen = self.regs[rB] & 0xFFFFFFFFFFFFFFFF, 0
                 while self.mem.get(addr + sLen, 0) != 0:
                     sLen += 1
                 return sLen
             case 6:  # STRCMP
-                self.chkReg(self.RB)
-                self.chkReg(self.RC)
-                addr1 = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
-                addr2 = self.regs[self.RC] & 0xFFFFFFFFFFFFFFFF
+                addr1 = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
+                addr2 = self.regs[rC] & 0xFFFFFFFFFFFFFFFF
                 i = 0
                 while True:
                     byte1, byte2 = (
@@ -255,18 +247,17 @@ class RuneVM:
                         return -1 if byte1 < byte2 else 1
                     i += 1
             case 7:  # PRINT_HEX
-                self.chkReg(self.RB)
-                out = f"0x{(self.regs[self.RB] & self.MASK24):X}"
+                out = f"0x{(self.regs[rB] & self.MASK24):X}"
                 self.outStream.write(out)
                 self.outStream.flush()
                 return len(out)
             case 8:  # RANDOM
                 return random.randint(self.MINVAL, self.MAXVAL)
             case 9:  # SYS
-                self.chkReg(self.RB)
-                self.chkReg(self.RC)
-                if self.regs[self.RC] == 0xFFF:
-                    match self.regs[self.RB]:
+                self.chkReg(rB)
+                self.chkReg(rC)
+                if self.regs[rC] == 0xFFF:
+                    match self.regs[rB]:
                         case 0:
                             self.outStream.write("EXIT")
                             self.outStream.flush()
@@ -310,10 +301,8 @@ class RuneVM:
                     sys.exit(1)
 
             case 10:  # OS
-                self.chkReg(self.RB)
-                self.chkReg(self.RC)
-                addr = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
-                bLen = self.regs[self.RC]
+                addr = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
+                bLen = self.regs[rC]
                 cmd = []
                 for i in range(bLen):
                     b = self.mem.get(addr + i, 0)
@@ -484,12 +473,16 @@ class RuneVM:
                 self.regs[r0] = self.to24(self.regs[r0] - 1)
             case 0x1E:  # NEG
                 self.chkReg(r0)
-                self.regs[r0] = self.to24(-self.regs[r0] + 1)
+                self.regs[r0] = self.to24(-self.regs[r0])
             case 0x1F:  # SYSCALL
                 self.chkReg(r0)
-                # only exec syscall if r0 is rA
-                if r0 == self.regs[0]:
-                    res = self.handleSyscall(self)
+                if r0 != self.RA:
+                    raise RuntimeError("SYSCALL Reg1 must be RA")
+                if r1 != self.NOREG and r1 != self.RB:
+                    raise RuntimeError("SYSCALL Reg2 must be RB")
+                if r2 != self.NOREG and r2 != self.RC:
+                    raise RuntimeError("SYSCALL Reg3 must be RC")
+                res = self.handleSyscall(r1, r2)
                 self.regs[r0] = self.to24(res)
             case 0x20:  # PUSH
                 self.chkReg(r0)
@@ -542,8 +535,9 @@ class RuneVM:
 
                 if dbg:
                     mnem = self.REVOP.get(op, "UNKNOWN")
+                    rv = lambda r: hex(self.regs[r]) if 0 <= r <= 2 else "--"
                     print(
-                        f"[{self.instrCnt:06d}] PC=0x{self.pc:016X} {mnem} R2={hex(self.regs[r2])} R1={hex(self.regs[r1])} R0={hex(self.regs[r0])} IMM={imm}"
+                        f"[{self.instrCnt:06d}] PC=0x{self.pc:016X} {mnem} R0={rv(r0)} R1={rv(r1)} R2={rv(r2)} IMM={imm}"
                     )
 
                 self.execInstr(op, rsv, r0, r1, r2, rsv2, imm)

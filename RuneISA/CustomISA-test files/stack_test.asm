@@ -1,8 +1,8 @@
 ; stack_test.asm - test new stack opcodes
-    MOV RA, 42
-    PUSH RA
-    MZERO RA
-    POP RA
-    MOV RB, 1
-    SYSCALL RB, RA      ; PRINT_INT(RA) -> 42
+    MOV RB, 42
+    PUSH RB
+    MZERO RB
+    POP RB
+    MOV RA, 1
+    SYSCALL RA, RB      ; PRINT_INT(RA) -> 42
     HALT

@@ -20,11 +20,11 @@ Bits 27..26 : Reg3      (2 bits)
 Bits 25..24 : Reserved  (2 bits, must be 0)
 Bits 23..0  : Immediate (24-bit signed)
 ```
-| Byte 1 | Byte 2 | Byte 3 | Byte 4              | Byte 5                      | Byte 6                   |
+| Byte 0 | Byte 1 | Byte 2 | Byte 3              | Byte 4                      | Byte 5                   |
 | ------ | ------ | ------ | ------------------- | --------------------------- | ------------------------ |
 | IMM    | IMM    | IMM    | REG                 | RSRV + Part of OPCODE       | Part of OPCODE + RSRV    |
 |        |        |        | Reg1-Reg2-Reg3-Resv | (RSRV)00(RSRV) (STRT)000000 | 00(END) (RSRV)0000(RSRV) |
-
+NOTE: Above is how the instruction would appear in hex editor.
 
 ### Register Encoding
 | Bits | Meaning              |
@@ -43,47 +43,47 @@ The opcode determines which fields are meaningful.
 
 
 ## Opcode Reference
-| Op   | Mnemonic | Reg1 | Reg2 | Reg3 | Imm  | Meaning                                                         |
-| ---- | -------- | ---- | ---- | ---- | ---- | --------------------------------------------------------------- |
-| 0x00 | HALT     | -    | -    | -    | -    | Stop execution                                                  |
-| 0x01 | MOV      | dst  | -    | -    | val  | `Reg1 = Imm` (sign extended)                                    |
-| 0x02 | MOVR     | dst  | src  | -    | -    | `Reg1 = Reg2`                                                   |
-| 0x03 | ADD      | dst  | src1 | src2 | -    | `Reg1 = Reg2 + Reg3`                                            |
-| 0x04 | SUB      | dst  | src1 | src2 | -    | `Reg1 = Reg2 - Reg3`                                            |
-| 0x05 | ADDI     | acc  | -    | -    | val  | `Reg1 += sign_ext(Imm)`                                         |
-| 0x06 | SUBI     | acc  | -    | -    | val  | `Reg1 -= sign_ext(Imm)`                                         |
-| 0x07 | MUL      | dst  | src1 | src2 | -    | `Reg1 = Reg2 * Reg3`                                            |
-| 0x08 | DIV      | dst  | src1 | src2 | -    | `Reg1 = Reg2 / Reg3` (integer, truncated toward zero)           |
-| 0x09 | MOD      | dst  | src1 | src2 | -    | `Reg1 = Reg2 % Reg3`                                            |
-| 0x0A | AND      | dst  | src1 | src2 | -    | `Reg1 = Reg2 & Reg3`                                            |
-| 0x0B | OR       | dst  | src1 | src2 | -    | `Reg1 = Reg2 \|\| Reg3`                                         |
-| 0x0C | XOR      | dst  | src1 | src2 | -    | `Reg1 = Reg2 ^ Reg3`                                            |
-| 0x0D | NOT      | acc  | -    | -    | -    | `Reg1 = ~Reg1` (bitwise NOT)                                    |
-| 0x0E | SHL      | acc  | -    | -    | amt  | `Reg1 = Reg1 << (Imm & 0x1F)`                                   |
-| 0x0F | SHR      | acc  | -    | -    | amt  | `Reg1 = Reg1 >> (Imm & 0x1F)`                                   |
-| 0x10 | LOAD     | dst  | addr | -    | -    | `Reg1 = MEM[Reg2]`                                              |
-| 0x11 | STORE    | addr | val  | -    | -    | `MEM[Reg1] = Reg2`                                              |
-| 0x12 | LOADI    | dst  | -    | -    | addr | `Reg1 = MEM[Imm]` (sign extended)                               |
-| 0x13 | STOREI   | val  | -    | -    | addr | `MEM[Imm] = Reg1` (sign extended)                               |
-| 0x14 | JMP      | -    | -    | -    | tgt  | `PC = Imm` (unconditional)                                      |
-| 0x15 | JEQ      | cmp1 | cmp2 | -    | tgt  | if `Reg1 == Reg2` then `PC = Imm`                               |
-| 0x16 | JNE      | cmp1 | cmp2 | -    | tgt  | if `Reg1 != Reg2` then `PC = Imm`                               |
-| 0x17 | JLT      | cmp1 | cmp2 | -    | tgt  | if `Reg1 < Reg2` then `PC = Imm` (signed)                       |
-| 0x18 | JGT      | cmp1 | cmp2 | -    | tgt  | if `Reg1 > Reg2` then `PC = Imm` (signed)                       |
-| 0x19 | JLE      | cmp1 | cmp2 | -    | tgt  | if `Reg1 <= Reg2` then `PC = Imm` (signed)                      |
-| 0x1A | JGE      | cmp1 | cmp2 | -    | tgt  | if `Reg1 >= Reg2` then `PC = Imm` (signed)                      |
-| 0x1B | MZERO    | dst  | -    | -    | -    | `Reg1 = 0`                                                      |
-| 0x1C | INC      | acc  | -    | -    | -    | `Reg1 += 1`                                                     |
-| 0x1D | DEC      | acc  | -    | -    | -    | `Reg1 -= 1`                                                     |
-| 0x1E | NEG      | acc  | -    | -    | -    | `Reg1 = -Reg1` (2's complement)                                 |
-| 0x1F | SYSCALL  | sysN | arg1 | arg2 | -    | Invoke syscall (see below)                                      |
-| 0x20 | PUSH     | val  | -    | -    | -    | `SP -= 8; MEM[SP] = sign_ext(Reg1)`                             |
-| 0x21 | POP      | dst  | -    | -    | -    | `Reg1 = MEM[SP]; SP += 8`                                       |
-| 0x22 | CALL     | tgt  | -    | -    | -    | `SP -= 8; MEM[SP] = PC + 6; PC = Reg1`                          |
-| 0x23 | RET      | -    | -    | -    | -    | `PC = MEM[SP]; SP += 8`                                         |
-| 0x24 | PUSHI    | -    | -    | -    | addr | `SP -= 8; MEM[SP] = sign_ext(Imm)`                              |
-| 0x25 | PUSHA    | val  | val  | val  | -    | `SP -= 24; MEM[SP] = Reg1; MEM[SP+8] = Reg2; MEM[SP+16] = Reg3` |
-| 0x26 | POPA     | dst1 | dst2 | dst3 | -    | `Reg1 = MEM[SP]; Reg2 = MEM[SP+8]; Reg3 = MEM[SP+16]; SP += 24` |
+| Op   | Mnemonic | Reg1      | Reg2      | Reg3      | Imm  | Meaning                                                         |
+| ---- | -------- | --------- | --------- | --------- | ---- | --------------------------------------------------------------- |
+| 0x00 | HALT     | -         | -         | -         | -    | Stop execution                                                  |
+| 0x01 | MOV      | dst       | -         | -         | val  | `Reg1 = Imm` (sign extended)                                    |
+| 0x02 | MOVR     | dst       | src       | -         | -    | `Reg1 = Reg2`                                                   |
+| 0x03 | ADD      | dst       | src2      | src1      | -    | `Reg1 = Reg2 + Reg3`                                            |
+| 0x04 | SUB      | dst       | src2      | src1      | -    | `Reg1 = Reg2 - Reg3`                                            |
+| 0x05 | ADDI     | acc       | -         | -         | val  | `Reg1 += sign_ext(Imm)`                                         |
+| 0x06 | SUBI     | acc       | -         | -         | val  | `Reg1 -= sign_ext(Imm)`                                         |
+| 0x07 | MUL      | dst       | src2      | src1      | -    | `Reg1 = Reg2 * Reg3`                                            |
+| 0x08 | DIV      | dst       | src2      | src1      | -    | `Reg1 = Reg2 / Reg3` (integer, truncated toward zero)           |
+| 0x09 | MOD      | dst       | src2      | src1      | -    | `Reg1 = Reg2 % Reg3`                                            |
+| 0x0A | AND      | dst       | src2      | src1      | -    | `Reg1 = Reg2 & Reg3` (bitwise AND)                              |
+| 0x0B | OR       | dst       | src2      | src1      | -    | `Reg1 = Reg2 \| Reg3` (bitwise OR)                              |
+| 0x0C | XOR      | dst       | src2      | src1      | -    | `Reg1 = Reg2 ^ Reg3`                                            |
+| 0x0D | NOT      | acc       | -         | -         | -    | `Reg1 = ~Reg1` (bitwise NOT)                                    |
+| 0x0E | SHL      | acc       | -         | -         | amt  | `Reg1 = Reg1 << (Imm & 0x1F)`                                   |
+| 0x0F | SHR      | acc       | -         | -         | amt  | `Reg1 = Reg1 >> (Imm & 0x1F)`                                   |
+| 0x10 | LOAD     | dst       | addr      | -         | -    | `Reg1 = MEM[Reg2]`                                              |
+| 0x11 | STORE    | addr      | val       | -         | -    | `MEM[Reg1] = Reg2`                                              |
+| 0x12 | LOADI    | dst       | -         | -         | addr | `Reg1 = MEM[Imm]` (sign extended)                               |
+| 0x13 | STOREI   | val       | -         | -         | addr | `MEM[Imm] = Reg1` (sign extended)                               |
+| 0x14 | JMP      | -         | -         | -         | tgt  | `PC = Imm` (unconditional)                                      |
+| 0x15 | JEQ      | cmp1      | cmp2      | -         | tgt  | if `Reg1 == Reg2` then `PC = Imm`                               |
+| 0x16 | JNE      | cmp1      | cmp2      | -         | tgt  | if `Reg1 != Reg2` then `PC = Imm`                               |
+| 0x17 | JLT      | cmp1      | cmp2      | -         | tgt  | if `Reg1 < Reg2` then `PC = Imm` (signed)                       |
+| 0x18 | JGT      | cmp1      | cmp2      | -         | tgt  | if `Reg1 > Reg2` then `PC = Imm` (signed)                       |
+| 0x19 | JLE      | cmp1      | cmp2      | -         | tgt  | if `Reg1 <= Reg2` then `PC = Imm` (signed)                      |
+| 0x1A | JGE      | cmp1      | cmp2      | -         | tgt  | if `Reg1 >= Reg2` then `PC = Imm` (signed)                      |
+| 0x1B | MZERO    | dst       | -         | -         | -    | `Reg1 = 0`                                                      |
+| 0x1C | INC      | acc       | -         | -         | -    | `Reg1 += 1`                                                     |
+| 0x1D | DEC      | acc       | -         | -         | -    | `Reg1 -= 1`                                                     |
+| 0x1E | NEG      | acc       | -         | -         | -    | `Reg1 = -Reg1` (2's complement)                                 |
+| 0x1F | SYSCALL  | sysN (RA) | arg1 (RB) | arg2 (RC) | -    | Invoke syscall (see below)                                      |
+| 0x20 | PUSH     | val       | -         | -         | -    | `SP -= 8; MEM[SP] = sign_ext(Reg1)`                             |
+| 0x21 | POP      | dst       | -         | -         | -    | `Reg1 = MEM[SP]; SP += 8`                                       |
+| 0x22 | CALL     | tgt       | -         | -         | -    | `SP -= 8; MEM[SP] = PC + 6; PC = Reg1`                          |
+| 0x23 | RET      | -         | -         | -         | -    | `PC = MEM[SP]; SP += 8`                                         |
+| 0x24 | PUSHI    | -         | -         | -         | addr | `SP -= 8; MEM[SP] = sign_ext(Imm)`                              |
+| 0x25 | PUSHA    | val       | val       | val       | -    | `SP -= 24; MEM[SP] = Reg1; MEM[SP+8] = Reg2; MEM[SP+16] = Reg3` |
+| 0x26 | POPA     | dst1      | dst2      | dst3      | -    | `Reg1 = MEM[SP]; Reg2 = MEM[SP+8]; Reg3 = MEM[SP+16]; SP += 24` |
 Fields marked `-` are don't care and should be encoded as `00` / `0`.
 
 #### Notes
@@ -95,6 +95,7 @@ Fields marked `-` are don't care and should be encoded as `00` / `0`.
 ## Syscalls
 `SYSCALL` uses the instruction's register fields as follows:
 - RegA: holds the syscall number, then overwritten with the return value (output)
+- `SYSCALL RA, RB, RC`
 
 The registers (RA, RB, RC) can only be placed in the field marked for it.
 

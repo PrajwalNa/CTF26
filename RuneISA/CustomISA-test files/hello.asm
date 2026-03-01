@@ -8,7 +8,6 @@
     MOV  RA, 0          ; syscall EXIT
     MOV  RB, 0          ; exit code 0
     SYSCALL RA, RB      ; exit
-
     HALT
 
 msg:
