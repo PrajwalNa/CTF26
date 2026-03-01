@@ -58,7 +58,7 @@ The opcode determines which fields are meaningful.
 | 0x0A | AND      | dst  | src1 | src2 | -    | `Reg1 = Reg2 & Reg3`                                            |
 | 0x0B | OR       | dst  | src1 | src2 | -    | `Reg1 = Reg2 \|\| Reg3`                                         |
 | 0x0C | XOR      | dst  | src1 | src2 | -    | `Reg1 = Reg2 ^ Reg3`                                            |
-| 0x0D | NOT      | acc  | -    | -    | -    | `Reg1 = -Reg1` (bitwise NOT)                                    |
+| 0x0D | NOT      | acc  | -    | -    | -    | `Reg1 = ~Reg1` (bitwise NOT)                                    |
 | 0x0E | SHL      | acc  | -    | -    | amt  | `Reg1 = Reg1 << (Imm & 0x1F)`                                   |
 | 0x0F | SHR      | acc  | -    | -    | amt  | `Reg1 = Reg1 >> (Imm & 0x1F)`                                   |
 | 0x10 | LOAD     | dst  | addr | -    | -    | `Reg1 = MEM[Reg2]`                                              |
@@ -75,7 +75,7 @@ The opcode determines which fields are meaningful.
 | 0x1B | MZERO    | dst  | -    | -    | -    | `Reg1 = 0`                                                      |
 | 0x1C | INC      | acc  | -    | -    | -    | `Reg1 += 1`                                                     |
 | 0x1D | DEC      | acc  | -    | -    | -    | `Reg1 -= 1`                                                     |
-| 0x1E | NEG      | acc  | -    | -    | -    | `Reg1 = ~Reg1` (2's complement)                                 |
+| 0x1E | NEG      | acc  | -    | -    | -    | `Reg1 = -Reg1` (2's complement)                                 |
 | 0x1F | SYSCALL  | sysN | arg1 | arg2 | -    | Invoke syscall (see below)                                      |
 | 0x20 | PUSH     | val  | -    | -    | -    | `SP -= 8; MEM[SP] = sign_ext(Reg1)`                             |
 | 0x21 | POP      | dst  | -    | -    | -    | `Reg1 = MEM[SP]; SP += 8`                                       |
@@ -150,4 +150,4 @@ The registers (RA, RB, RC) can only be placed in the field marked for it.
 - Register field is `00` where a register is required -> runtime error
 - Invalid memory access -> runtime error
 - Arithmetic overflow wraps in 24-bit signed space
-- Unknown opcode (not in `0x00..0x1F`) -> runtime error
+- Unknown opcode (not in `0x00..0x26`) -> runtime error
