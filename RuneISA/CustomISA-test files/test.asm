@@ -1,4 +1,5 @@
 ; test.asm - Exercise all major opcodes
+; Lesson learnt lol
 
 ; === Arithmetic ===
     MOV  RA, 30
@@ -179,3 +180,4 @@ sep:
 
 done_msg:
     .ds "\nAll tests passed!\n"
+
