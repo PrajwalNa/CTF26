@@ -16,6 +16,9 @@ class RuneVM:
     MASK24 = (1 << 24) - 1
     INSTRSZ = 6
     NOREG = -1
+    RA = 0
+    RB = 1
+    RC = 2
 
     # Memory layout
     CODEBASE = 0x0000000000000000
@@ -178,23 +181,25 @@ class RuneVM:
         imm = instr & 0xFFFFFF
         return op, rsv, r0, r1, r2, rsv2, imm
 
-    def handleSyscall(self, rA: int, rB: int, rC: int) -> int:
+    def handleSyscall(self) -> int:
         # Handle syscall, rB/rC are register indices from Reg2/Reg3 fields
-        match rA:
+        match self.regs[self.RA]:  # rA is syscall number
             case 0:  # EXIT
-                self.chkReg(rB)
-                sys.exit(self.regs[rB])
+                if self.regs[self.RB] < 0:
+                    self.outStream.write("Program exited with error code {}\n".format(self.regs[self.RB]))
+                    self.outStream.flush()
+                sys.exit(self.regs[self.RB])
             case 1:  # PRINT_INT
-                self.chkReg(rB)
-                out = str(self.regs[rB])
+                self.chkReg(self.RB)
+                out = str(self.regs[self.RB])
                 self.outStream.write(out)
                 self.outStream.flush()
                 return len(out)
             case 2:  # PRINT_STR
-                self.chkReg(rB)
-                self.chkReg(rC)
-                addr = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
-                sLen = self.regs[rC]
+                self.chkReg(self.RB)
+                self.chkReg(self.RC)
+                addr = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
+                sLen = self.regs[self.RC]
                 if sLen == 0:
                     char, i = [], 0
                     while True:
@@ -216,10 +221,10 @@ class RuneVM:
                 except ValueError:
                     return 0
             case 4:  # READ_STR
-                self.chkReg(rB)
-                self.chkReg(rC)
-                addr = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
-                maxLen = self.regs[rC]
+                self.chkReg(self.RB)
+                self.chkReg(self.RC)
+                addr = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
+                maxLen = self.regs[self.RC]
                 line = self.inStream.readline()
                 if line.endswith("\n"):
                     line = line[:-1]
@@ -228,16 +233,16 @@ class RuneVM:
                     self.mem[addr + i] = ord(line[i]) & 0xFF
                 return nWrit
             case 5:  # STRLEN
-                self.chkReg(rB)
-                addr, sLen = self.regs[rB] & 0xFFFFFFFFFFFFFFFF, 0
+                self.chkReg(self.RB)
+                addr, sLen = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF, 0
                 while self.mem.get(addr + sLen, 0) != 0:
                     sLen += 1
                 return sLen
             case 6:  # STRCMP
-                self.chkReg(rB)
-                self.chkReg(rC)
-                addr1 = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
-                addr2 = self.regs[rC] & 0xFFFFFFFFFFFFFFFF
+                self.chkReg(self.RB)
+                self.chkReg(self.RC)
+                addr1 = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
+                addr2 = self.regs[self.RC] & 0xFFFFFFFFFFFFFFFF
                 i = 0
                 while True:
                     byte1, byte2 = (
@@ -250,18 +255,18 @@ class RuneVM:
                         return -1 if byte1 < byte2 else 1
                     i += 1
             case 7:  # PRINT_HEX
-                self.chkReg(rB)
-                out = f"0x{(self.regs[rB] & self.MASK24):X}"
+                self.chkReg(self.RB)
+                out = f"0x{(self.regs[self.RB] & self.MASK24):X}"
                 self.outStream.write(out)
                 self.outStream.flush()
                 return len(out)
             case 8:  # RANDOM
                 return random.randint(self.MINVAL, self.MAXVAL)
             case 9:  # SYS
-                self.chkReg(rB)
-                self.chkReg(rC)
-                if self.regs[rC] == 0xFFF:
-                    match self.regs[rB]:
+                self.chkReg(self.RB)
+                self.chkReg(self.RC)
+                if self.regs[self.RC] == 0xFFF:
+                    match self.regs[self.RB]:
                         case 0:
                             self.outStream.write("EXIT")
                             self.outStream.flush()
@@ -305,10 +310,10 @@ class RuneVM:
                     sys.exit(1)
 
             case 10:  # OS
-                self.chkReg(rB)
-                self.chkReg(rC)
-                addr = self.regs[rB] & 0xFFFFFFFFFFFFFFFF
-                bLen = self.regs[rC]
+                self.chkReg(self.RB)
+                self.chkReg(self.RC)
+                addr = self.regs[self.RB] & 0xFFFFFFFFFFFFFFFF
+                bLen = self.regs[self.RC]
                 cmd = []
                 for i in range(bLen):
                     b = self.mem.get(addr + i, 0)
@@ -331,7 +336,7 @@ class RuneVM:
                     self.outStream.flush()
                     return -1
             case _:
-                raise RuntimeError(f"Unknown syscall: {rA}")
+                raise RuntimeError(f"Unknown syscall: {self.regs[self.RA]}")
 
     def execInstr(
         self, op: int, rsv: int, r0: int, r1: int, r2: int, rsv2: int, imm: int
@@ -406,7 +411,7 @@ class RuneVM:
                 self.regs[r0] = self.to24(self.regs[r1] ^ self.regs[r2])
             case 0x0D:  # NOT
                 self.chkReg(r0)
-                self.regs[r0] = self.to24(-self.regs[r0])
+                self.regs[r0] = self.to24(~self.regs[r0])
             case 0x0E:  # SHL
                 self.chkReg(r0)
                 sa = imsgn & 0x1F
@@ -479,11 +484,12 @@ class RuneVM:
                 self.regs[r0] = self.to24(self.regs[r0] - 1)
             case 0x1E:  # NEG
                 self.chkReg(r0)
-                self.regs[r0] = self.to24(~self.regs[r0])
+                self.regs[r0] = self.to24(-self.regs[r0] + 1)
             case 0x1F:  # SYSCALL
                 self.chkReg(r0)
-                rA = self.regs[r0]
-                res = self.handleSyscall(rA, r1, r2)
+                # only exec syscall if r0 is rA
+                if r0 == self.regs[0]:
+                    res = self.handleSyscall(self)
                 self.regs[r0] = self.to24(res)
             case 0x20:  # PUSH
                 self.chkReg(r0)
