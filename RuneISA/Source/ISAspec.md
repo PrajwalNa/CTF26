@@ -24,7 +24,6 @@ Bits 23..0  : Immediate (24-bit signed)
 | ------ | ------ | ------ | ------------------- | --------------------------- | ------------------------ |
 | IMM    | IMM    | IMM    | REG                 | RSRV + Part of OPCODE       | Part of OPCODE + RSRV    |
 |        |        |        | Reg1-Reg2-Reg3-Resv | (RSRV)00(RSRV) (STRT)000000 | 00(END) (RSRV)0000(RSRV) |
-
 NOTE: Above is how the instruction would appear in hex editor.
 
 ### Register Encoding
@@ -152,5 +151,4 @@ The registers (RA, RB, RC) can only be placed in the field marked for it.
 - Register field is `00` where a register is required -> runtime error
 - Invalid memory access -> runtime error
 - Arithmetic overflow wraps in 24-bit signed space
-
 - Unknown opcode (not in `0x00..0x26`) -> runtime error
