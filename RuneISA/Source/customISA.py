@@ -26,7 +26,7 @@ class RuneVM:
     DATABASE = 0x0000000000100000
     DATASZ = 0x100000
     STACKBASE = 0xFFFFFFFFFFFFFFFF
-    STACKLO = 0xFFFFFFFFFFF00000
+    STACKLO = 0xFFFFFFFFFF000000
 
     ##### FOR DEBUGGING PURPOSES ONLY (not part of actual VM) #####
     # Opcodes (39 total, 0x1F is SYSCALL, 0x20-0x26 are stack ops)
@@ -584,3 +584,4 @@ if __name__ == "__main__":
     else:
         print("Unknown Runes ISA Interpreter v2.1")
         print("Usage: python customISA.py <binary_file> [--debug]")
+
