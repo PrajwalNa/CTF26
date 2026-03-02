@@ -85,6 +85,7 @@ The opcode determines which fields are meaningful.
 | 0x24 | PUSHI    | -         | -         | -         | addr | `SP -= 8; MEM[SP] = sign_ext(Imm)`                              |
 | 0x25 | PUSHA    | val       | val       | val       | -    | `SP -= 24; MEM[SP] = Reg1; MEM[SP+8] = Reg2; MEM[SP+16] = Reg3` |
 | 0x26 | POPA     | dst1      | dst2      | dst3      | -    | `Reg1 = MEM[SP]; Reg2 = MEM[SP+8]; Reg3 = MEM[SP+16]; SP += 24` |
+
 Fields marked `-` are don't care and should be encoded as `00` / `0`.
 
 #### Notes
@@ -153,4 +154,5 @@ The registers (RA, RB, RC) can only be placed in the field marked for it.
 - Invalid memory access -> runtime error
 - Arithmetic overflow wraps in 24-bit signed space
 - Unknown opcode (not in `0x00..0x26`) -> runtime error
+
 
