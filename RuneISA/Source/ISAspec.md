@@ -132,7 +132,7 @@ The registers (RA, RB, RC) can only be placed in the field marked for it.
 
 ## Memory Layout
 ```
-0xFFFFFFFFFFFFFFFF - 0xFFFFFFFFFFF00000 : Stack (grows downward)
+0xFFFFFFFFFFFFFFFF - 0xFFFFFFFFFF000000 : Stack (grows downward)
 0x00000000001FFFFF - 0x0000000000100000 : Data (1 MB)
 0x00000000000FFFFF - 0x0000000000000000 : Code (1 MB)
 ```
@@ -154,6 +154,7 @@ The registers (RA, RB, RC) can only be placed in the field marked for it.
 - Invalid memory access -> runtime error
 - Arithmetic overflow wraps in 24-bit signed space
 - Unknown opcode (not in `0x00..0x26`) -> runtime error
+
 
 
 
