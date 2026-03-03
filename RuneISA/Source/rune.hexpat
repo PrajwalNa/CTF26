@@ -1,7 +1,6 @@
 // ============================================================
 // Rune ISA — ImHex Pattern (.hexpat)
 // Decodes .rune binaries as 6-byte instruction slots
-// Approach A: fixed grid, invalid slots flagged as [DATA]
 // ============================================================
 
 #pragma description Rune ISA Binary (.rune)
