@@ -10,7 +10,7 @@
 import std.mem;
 import std.string;
 
-// ─── Opcode lookup ───
+// --- Opcode lookup ---
 
 fn opname(u8 op) {
     if (op == 0x00) return "HALT";
@@ -55,7 +55,7 @@ fn opname(u8 op) {
     return "???";
 };
 
-// ─── Register lookup ───
+// --- Register lookup ---
 
 fn regname(u8 r) {
     if (r == 1) return "RA";
@@ -64,13 +64,13 @@ fn regname(u8 r) {
     return "__";
 };
 
-// ─── Format function ───
+// --- Format function ---
 // Reads named bitfield members, decodes the instruction.
 // If reserved/unused bits are non-zero or opcode is out of range,
 // the slot is flagged as [DATA].
 
 fn fmtRune(ref auto slot) {
-    // ── Validity check ──
+    // -- Validity check --
     if (slot.unused != 0 || slot.rsv1 != 0 || slot.rsv2 != 0 || slot.opcode > 0x26)
         return "[DATA]";
 
@@ -79,12 +79,12 @@ fn fmtRune(ref auto slot) {
     s32 simm = imm;
     if (imm & 0x800000) simm = s32(imm | 0xFF000000);
 
-    // ── Format output ──
+    // -- Format output --
     return std::format("{} {}, {}, {},  {}",
         opname(slot.opcode), regname(slot.reg1), regname(slot.reg2), regname(slot.reg3), simm);
 };
 
-// ─── Instruction bitfield (6 bytes = 48 bits, little-endian) ───
+// --- Instruction bitfield (6 bytes = 48 bits, little-endian) ---
 // Fields declared MSB -> LSB of the LE 48-bit integer.
 // Each field gets its own color in the hex view.
 //
