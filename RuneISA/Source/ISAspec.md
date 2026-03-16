@@ -1,6 +1,7 @@
 # Rune ISA Spec (42-bit)
 
 This is the instruction set used in the 'Unknown Runes' & 'A Dark Legacy' challenges.
+Check out how it was made [here](https://kernelmode0x0.blogspot.com/2026/03/i-made-cpu-for-ctf-challenge-ft-my.html)
 
 ## Registers
 - `RA` - general purpose (24-bit signed)
